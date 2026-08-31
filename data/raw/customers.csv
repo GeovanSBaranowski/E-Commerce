@@ -1,0 +1,101 @@
+customer_id,name,email,signup_date,city,state
+1,Cliente 1,cliente1@email.com,2024-01-26,Florianopolis,SC
+2,Cliente 2,cliente2@email.com,2024-09-07,Curitiba,PR
+3,Cliente 3,cliente3@email.com,2024-05-22,Porto Alegre,RS
+4,Cliente 4,cliente4@email.com,2025-07-12,Florianopolis,SC
+5,Cliente 5,cliente5@email.com,2025-03-08,Florianopolis,SC
+6,Cliente 6,cliente6@email.com,2024-01-31,Florianopolis,SC
+7,Cliente 7,cliente7@email.com,2024-08-11,Florianopolis,SC
+8,Cliente 8,cliente8@email.com,2025-06-01,Porto Alegre,RS
+9,Cliente 9,cliente9@email.com,2024-01-28,Rio De Janeiro,RJ
+10,Cliente 10,cliente10@email.com,2024-07-22,Rio De Janeiro,RJ
+11,Cliente 11,cliente11@email.com,2025-03-05,Rio De Janeiro,RJ
+12,Cliente 12,cliente12@email.com,2025-04-04,Porto Alegre,RS
+13,Cliente 13,cliente13@email.com,2024-10-11,Rio De Janeiro,RJ
+14,Cliente 14,cliente14@email.com,2024-06-12,Florianopolis,SC
+15,Cliente 15,cliente15@email.com,2024-12-14,Sao Paulo,SP
+16,Cliente 16,cliente16@email.com,2024-06-08,Curitiba,PR
+17,Cliente 17,cliente17@email.com,2024-12-10,Porto Alegre,RS
+18,Cliente 18,cliente18@email.com,2024-04-04,Florianopolis,SC
+19,Cliente 19,cliente19@email.com,2024-04-09,Sao Paulo,SP
+20,Cliente 20,cliente20@email.com,2024-12-18,Curitiba,PR
+21,Cliente 21,cliente21@email.com,2024-09-27,Rio De Janeiro,RJ
+22,Cliente 22,cliente22@email.com,2025-04-15,Florianopolis,SC
+23,Cliente 23,cliente23@email.com,2024-05-07,Rio De Janeiro,RJ
+24,Cliente 24,cliente24@email.com,2024-03-21,Sao Paulo,SP
+25,Cliente 25,cliente25@email.com,2024-10-27,Rio De Janeiro,RJ
+26,Cliente 26,cliente26@email.com,2025-01-05,Rio De Janeiro,RJ
+27,Cliente 27,cliente27@email.com,2024-07-15,Rio De Janeiro,RJ
+28,Cliente 28,cliente28@email.com,2024-02-16,Florianopolis,SC
+29,Cliente 29,cliente29@email.com,2024-10-23,Porto Alegre,RS
+30,Cliente 30,cliente30@email.com,2024-08-26,Florianopolis,SC
+31,Cliente 31,cliente31@email.com,2025-01-24,Florianopolis,SC
+32,Cliente 32,cliente32@email.com,2025-04-09,Curitiba,PR
+33,Cliente 33,cliente33@email.com,2024-06-15,Curitiba,PR
+34,Cliente 34,cliente34@email.com,2024-12-29,Curitiba,PR
+35,Cliente 35,cliente35@email.com,2024-09-30,Porto Alegre,RS
+36,Cliente 36,cliente36@email.com,2024-06-24,Florianopolis,SC
+37,Cliente 37,cliente37@email.com,2024-09-07,Rio De Janeiro,RJ
+38,Cliente 38,cliente38@email.com,2025-04-18,Porto Alegre,RS
+39,Cliente 39,cliente39@email.com,2024-10-03,Sao Paulo,SP
+40,Cliente 40,cliente40@email.com,2024-08-12,Rio De Janeiro,RJ
+41,Cliente 41,cliente41@email.com,2024-02-27,Curitiba,PR
+42,Cliente 42,cliente42@email.com,2024-02-02,Porto Alegre,RS
+43,Cliente 43,cliente43@email.com,2025-02-14,Curitiba,PR
+44,Cliente 44,cliente44@email.com,2024-03-08,Curitiba,PR
+45,Cliente 45,cliente45@email.com,2025-08-03,Porto Alegre,RS
+46,Cliente 46,cliente46@email.com,2024-08-05,Curitiba,PR
+47,Cliente 47,cliente47@email.com,2025-02-09,Sao Paulo,SP
+48,Cliente 48,cliente48@email.com,2024-05-26,Sao Paulo,SP
+49,Cliente 49,cliente49@email.com,2024-05-22,Curitiba,PR
+50,Cliente 50,cliente50@email.com,2025-07-28,Porto Alegre,RS
+51,Cliente 51,cliente51@email.com,2024-09-26,Rio De Janeiro,RJ
+52,Cliente 52,cliente52@email.com,2025-03-14,Rio De Janeiro,RJ
+53,Cliente 53,cliente53@email.com,2025-02-12,Rio De Janeiro,RJ
+54,Cliente 54,cliente54@email.com,2024-08-12,Curitiba,PR
+55,Cliente 55,cliente55@email.com,2025-06-05,Porto Alegre,RS
+56,Cliente 56,cliente56@email.com,2024-04-03,Sao Paulo,SP
+57,Cliente 57,cliente57@email.com,2024-04-22,Florianopolis,SC
+58,Cliente 58,cliente58@email.com,2024-06-12,Porto Alegre,RS
+59,Cliente 59,cliente59@email.com,2024-03-06,Sao Paulo,SP
+60,Cliente 60,cliente60@email.com,2025-01-25,Sao Paulo,SP
+61,Cliente 61,cliente61@email.com,2025-04-24,Rio De Janeiro,RJ
+62,Cliente 62,cliente62@email.com,2024-09-14,Rio De Janeiro,RJ
+63,Cliente 63,cliente63@email.com,2024-01-12,Rio De Janeiro,RJ
+64,Cliente 64,cliente64@email.com,2025-07-03,Florianopolis,SC
+65,Cliente 65,cliente65@email.com,2024-12-14,Curitiba,PR
+66,Cliente 66,cliente66@email.com,2024-10-27,Florianopolis,SC
+67,Cliente 67,cliente67@email.com,2024-06-10,Sao Paulo,SP
+68,Cliente 68,cliente68@email.com,2024-01-04,Sao Paulo,SP
+69,Cliente 69,cliente69@email.com,2025-05-27,Curitiba,PR
+70,Cliente 70,cliente70@email.com,2025-06-03,Porto Alegre,RS
+71,Cliente 71,cliente71@email.com,2024-11-01,Florianopolis,SC
+72,Cliente 72,cliente72@email.com,2024-07-22,Rio De Janeiro,RJ
+73,Cliente 73,cliente73@email.com,2025-01-17,Porto Alegre,RS
+74,Cliente 74,cliente74@email.com,2025-07-06,Porto Alegre,RS
+75,Cliente 75,cliente75@email.com,2024-01-01,Rio De Janeiro,RJ
+76,Cliente 76,cliente76@email.com,2024-11-27,Rio De Janeiro,RJ
+77,Cliente 77,cliente77@email.com,2024-01-20,Sao Paulo,SP
+78,Cliente 78,cliente78@email.com,2025-01-06,Florianopolis,SC
+79,Cliente 79,cliente79@email.com,2024-09-02,Curitiba,PR
+80,Cliente 80,cliente80@email.com,2024-09-03,Florianopolis,SC
+81,Cliente 81,cliente81@email.com,2024-03-21,Rio De Janeiro,RJ
+82,Cliente 82,cliente82@email.com,2025-05-12,Florianopolis,SC
+83,Cliente 83,cliente83@email.com,2025-06-29,Florianopolis,SC
+84,Cliente 84,cliente84@email.com,2024-05-11,Porto Alegre,RS
+85,Cliente 85,cliente85@email.com,2025-07-16,Sao Paulo,SP
+86,Cliente 86,cliente86@email.com,2024-09-28,Porto Alegre,RS
+87,Cliente 87,cliente87@email.com,2025-03-09,Rio De Janeiro,RJ
+88,Cliente 88,cliente88@email.com,2025-07-06,Porto Alegre,RS
+89,Cliente 89,cliente89@email.com,2024-11-15,Porto Alegre,RS
+90,Cliente 90,cliente90@email.com,2025-01-17,Sao Paulo,SP
+91,Cliente 91,cliente91@email.com,2025-06-13,Sao Paulo,SP
+92,Cliente 92,cliente92@email.com,2024-05-03,Sao Paulo,SP
+93,Cliente 93,cliente93@email.com,2024-08-18,Porto Alegre,RS
+94,Cliente 94,cliente94@email.com,2024-12-12,Florianopolis,SC
+95,Cliente 95,cliente95@email.com,2025-07-21,Florianopolis,SC
+96,Cliente 96,cliente96@email.com,2024-08-13,Porto Alegre,RS
+97,Cliente 97,cliente97@email.com,2024-03-13,Florianopolis,SC
+98,Cliente 98,cliente98@email.com,2024-08-22,Florianopolis,SC
+99,Cliente 99,cliente99@email.com,2024-02-02,Florianopolis,SC
+100,Cliente 100,cliente100@email.com,2024-03-13,Curitiba,PR
