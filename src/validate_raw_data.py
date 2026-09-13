@@ -5,29 +5,57 @@ import pandas as pd
 RAW_DATA_DIR = Path("data/raw")
 customers_df = pd.read_csv(RAW_DATA_DIR / "customers.csv")
 
-customer_expected_coluns = ["customer_id","name","email","signup_date","city","state"]
-customer_missing_colums = set(customer_expected_coluns) - set(customers_df.columns)
+## dataframe do produto
+products_df = pd.read_csv(RAW_DATA_DIR / "products.csv")
 
-if customer_missing_colums:
-    raise ValueError(f"Colunas ausentes: {customer_missing_colums}")
-else:
-    print("Todas as colunas estao presentes")
+############# orders
+orders_df = pd.read_csv(RAW_DATA_DIR / "orders.csv")
 
-customer_null_columns = customers_df.isna().sum()
-customer_null_columns_true = customer_null_columns[customer_null_columns > 0]
+#############funcoes compartilhadas
 
-if not customer_null_columns_true.empty:
-    raise ValueError(f"Colunas com valores nulos: {customer_null_columns_true.to_dict()}")
+############# valida colunas dos CSVs
+def validate_required_columns(df, expected_columns, table_name):
+    missing_columns = set(expected_columns) - set(df.columns)
 
-customer_duplicate_ids = customers_df[customers_df["customer_id"].duplicated(keep=False)].sort_values("customer_id")
-duplicate_email = customers_df[customers_df["email"].duplicated(keep=False)].sort_values("email")
+    if missing_columns:
+        raise ValueError(f"Colunas ausentes na tabela {table_name}: {missing_columns}")
+    
+    print(f"Todas as colunas da tabela {table_name} estao presentes")
 
-if not customer_duplicate_ids.empty:
-    raise ValueError(f"Clientes com customer_id duplicado: {customer_duplicate_ids.to_dict(orient='records')}")
+############Valida colunas com nulos
+def validate_no_nulls(df, table_name):
+    null_counts = df.isna().sum()
+    columns_with_nulls = null_counts[null_counts > 0]
 
-if not duplicate_email.empty:
-    raise ValueError(f"Clientes com email duplicado: {duplicate_email.to_dict(orient='records')}")
+    if not columns_with_nulls.empty:
+        raise ValueError(f"Colunas com valores nulos na tabela {table_name}: {columns_with_nulls.to_dict()}")
 
+    print(f"Todas as colunas da tabela {table_name} possuem valores")
+
+###########Valida valores unicos
+def validate_unique_values(df, column_name, table_name):
+    duplicate_rows = df[df[column_name].duplicated(keep=False)].sort_values(column_name)
+
+    if not duplicate_rows.empty:
+        raise ValueError(f"Colunas com valores duplicados na tabela {table_name}, coluna {column_name}: {duplicate_rows.to_dict(orient='records')}")
+
+    print(f"Todos os valores sao unicos na coluna {column_name} da tabela {table_name} \n")
+
+########validacao customer
+
+########valida colunas
+customer_expected_columns = ["customer_id","name","email","signup_date","city","state"]
+
+validate_required_columns(customers_df, customer_expected_columns, "Customer")
+
+########valida nulos
+validate_no_nulls(customers_df, "Customers")
+
+#########valida id e email duplicado nos customers
+validate_unique_values(customers_df, "customer_id", "Customers")
+validate_unique_values(customers_df, "email", "Customers")
+
+##########Valida data de inscricao
 customers_sign_up = pd.to_datetime(customers_df["signup_date"], format="%Y-%m-%d", errors="coerce")
 
 invalid_sign_up_date_mask = customers_sign_up.isna()
@@ -40,29 +68,16 @@ print("A validacao dos clientes ocorreu com sucesso!")
 
 ########## produto ###########
 
-## dataframe do produto
-products_df = pd.read_csv(RAW_DATA_DIR / "products.csv")
+## validacao de colunas ausentes
 coluns_products = ["product_id","product_name","category","unit_price"]
 
-## validacao de colunas ausentes
-product_missing_colums = set(coluns_products) - set(products_df.columns)
+validate_required_columns(products_df, coluns_products, "Products")
 
-if product_missing_colums:
-    raise ValueError(f"A colunas dos produtos estao incompletas: {product_missing_colums}")
-else:
-    print("Todas as colunas estao presentes")
-
-product_null_columns = products_df.isna().sum()
-product_null_columns_true = product_null_columns[product_null_columns > 0]
-
-if not product_null_columns_true.empty:
-    raise ValueError(f"Os seguintes valores estao nulos: {product_null_columns_true.to_dict()}")
+#######Valida colunas nulas
+validate_no_nulls(products_df, "Products")
 
 ##validacao de IDs duplicados
-product_duplicate_ids = products_df[products_df["product_id"].duplicated(keep=False)].sort_values("product_id")
-
-if not product_duplicate_ids.empty:
-    raise ValueError(f"Produto com id duplicado: {product_duplicate_ids.to_dict(orient='records')}")
+validate_unique_values(products_df, "product_id", "Products")
 
 ## validacao do preco do produto
 unit_price = pd.to_numeric(products_df["unit_price"], errors="coerce")
@@ -90,25 +105,15 @@ if not invalid_category_rows.empty:
 
 print("A validacao dos produtos ocorreu com sucesso!")
 
-############# orders
-
-orders_df = pd.read_csv(RAW_DATA_DIR / "orders.csv")
+############# Orders
 
 ############# valida colunas do csv
-orders_expected_coluns = ["order_id","customer_id","product_id","order_date","quantity","unit_price","status"]
-orders_missing_colums = set(orders_expected_coluns) - set(orders_df.columns)
+orders_expected_columns = ["order_id","customer_id","product_id","order_date","quantity","unit_price","status"]
 
-if orders_missing_colums:
-    raise ValueError(f"Colunas ausentes: {orders_missing_colums}")
-else:
-    print("Todas as colunas estao presentes")
+validate_required_columns(orders_df, orders_expected_columns, "Orders")
 
 ############valida valores nulos nas colunas
-orders_null_columns = orders_df.isna().sum()
-orders_null_columns_true =orders_null_columns[orders_null_columns > 0]
-
-if not orders_null_columns_true.empty:
-    raise ValueError(f"Colunas com valores nulos: {orders_null_columns_true.to_dict()}")
+validate_no_nulls(orders_df, "Orders")
 
 ###########Valida se o id do produto existe no csv dos products
 invalid_product_id_mask = ~orders_df["product_id"].isin(products_df["product_id"])
