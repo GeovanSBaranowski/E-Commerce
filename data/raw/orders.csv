@@ -1,4 +1,4 @@
-order_id,custumer_id,product_id,order_date,quantity,unity_price,status
+order_id,customer_id,product_id,order_date,quantity,unit_price,status
 10000,7,21,2025-10-04,1,404.28,cancelled
 10001,22,14,2025-09-06,4,217.33,completed
 10001,52,29,2025-01-31,2,56.18,completed

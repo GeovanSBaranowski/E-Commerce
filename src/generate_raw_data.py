@@ -65,11 +65,11 @@ while len(orders) < 1_000:
 
         order = {
             "order_id": order_id,
-            "custumer_id": custumer["custumer_id"],
+            "customer_id": custumer["custumer_id"],
             "product_id": product["product_id"],
             "order_date": order_date.isoformat(),
             "quantity": random.randint(1,5),
-            "unity_price": product["unit_price"],
+            "unit_price": product["unit_price"],
             "status": random.choices(
                 ["completed","cancelled","refunded"],
                 weights=[90,7,3],
