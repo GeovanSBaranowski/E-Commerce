@@ -1,7 +1,15 @@
 import pandas as pd
 import pytest
 
-from src.validate_raw_data import (validate_no_nulls, validate_required_columns, validate_unique_values)
+from src.validate_raw_data import (
+    validate_date_format,
+    validate_no_nulls,
+    validate_positive_integer,
+    validate_positive_numeric,
+    validate_required_columns,
+    validate_unique_values,
+)
+
 
 def test_required_columns_raises_error_when_email_is_missing():
 
@@ -48,3 +56,30 @@ def test_columns_with_duplicated_id_raises_error():
 
     with pytest.raises(ValueError, match="Colunas com valores duplicados na tabela"):
         validate_unique_values(df, "customer_id", "customer")
+
+def test_date_format_raises_error_when_date_is_invalid():
+
+    df = pd.DataFrame({
+        "signup_date":["2025-01-01", "Teste"]
+    })
+
+    with pytest.raises(ValueError, match="Data invalida"):
+        validate_date_format(df, "signup_date", "%Y-%m-%d", "Customers")
+
+def test_positive_numeric_raises_error_when_value_is_zero():
+
+    df = pd.DataFrame({
+        "unit_price": [0]
+    })
+
+    with pytest.raises(ValueError, match="Valor numerico invalido"):
+        validate_positive_numeric(df, "unit_price", "Products")
+
+def test_positive_integer_raises_error_when_quantity_is_decimal():
+
+    df = pd.DataFrame({
+        "quantity": [0.5]
+    })
+
+    with pytest.raises(ValueError, match="Existem valores não positivos, não inteiros ou inválidos na tabela"):
+        validate_positive_integer(df, "quantity", "Orders")

@@ -34,6 +34,36 @@ def validate_unique_values(df, column_name, table_name):
 
     print(f"Todos os valores sao unicos na coluna {column_name} da tabela {table_name} \n")
 
+#########Formata as datas do CSV
+def validate_date_format(df, column_name, date_format, table_name):
+    parsed_dates = pd.to_datetime(df[column_name], format=date_format, errors="coerce")
+
+    invalid_date_mask = parsed_dates.isna()
+    invalid_date_rows = df[invalid_date_mask]
+
+    if not invalid_date_rows.empty:
+        raise ValueError(f"Data invalida na tabela {table_name}, coluna {column_name}:{invalid_date_rows.to_dict(orient='records')}")
+
+##########Valida os precos da coluna
+def validate_positive_numeric(df, column_name, table_name):
+    numeric_values = pd.to_numeric(df[column_name], errors="coerce")
+
+    invalid_numeric_mask = numeric_values.isna() | (numeric_values <= 0)
+    invalid_numeric_rows = df[invalid_numeric_mask]
+
+    if not invalid_numeric_rows.empty:
+        raise ValueError(f"Valor numerico invalido na tabela {table_name}, coluna {column_name}: {invalid_numeric_rows.to_dict(orient='records')}")
+
+##########Valida os numeros referentes a quantidade nas colunas
+def validate_positive_integer(df, column_name, table_name):
+    numeric_values  = pd.to_numeric(df[column_name], errors="coerce")
+
+    invalid_integer_mask = numeric_values .isna() | (numeric_values  <= 0) | (numeric_values % 1 != 0)
+    invalid_integer_rows = df[invalid_integer_mask]
+
+    if not invalid_integer_rows.empty:
+        raise ValueError(f"Existem valores não positivos, não inteiros ou inválidos na tabela {table_name}, coluna {column_name}: {invalid_integer_rows.to_dict(orient="records")}")
+
 ###########main
 def main():
     
@@ -61,13 +91,7 @@ def main():
     validate_unique_values(customers_df, "email", "Customers")
 
     ##########Valida data de inscricao
-    customers_sign_up = pd.to_datetime(customers_df["signup_date"], format="%Y-%m-%d", errors="coerce")
-
-    invalid_sign_up_date_mask = customers_sign_up.isna()
-    invalid_sign_up_date_rows = customers_df[invalid_sign_up_date_mask]
-
-    if not invalid_sign_up_date_rows.empty:
-        raise ValueError(f"Data de inscricao invalida:{invalid_sign_up_date_rows.to_dict(orient='records')}")
+    validate_date_format(customers_df, "signup_date", "%Y-%m-%d", "Customers")
 
     print("A validacao dos clientes ocorreu com sucesso!")
 
@@ -85,19 +109,7 @@ def main():
     validate_unique_values(products_df, "product_id", "Products")
 
     ## validacao do preco do produto
-    unit_price = pd.to_numeric(products_df["unit_price"], errors="coerce")
-
-    invalid_price_mask = unit_price.isna()
-    invalid_price_records = products_df[invalid_price_mask]
-
-    if not invalid_price_records.empty:
-        raise ValueError(f"Preco do produto invalido: {invalid_price_records.to_dict(orient='records')}")
-
-    ## validacao de valor do produto eh maior que 0
-    non_positive_price_rows = products_df[unit_price <= 0]
-
-    if not non_positive_price_rows.empty:
-        raise ValueError(f"Existem produtos com valores negativos ou iguais a 0: {non_positive_price_rows.to_string(index=False)}")
+    validate_positive_numeric(products_df, "unit_price", "Products")
 
     ##validacao das categorias
     categories = ["Eletronicos", "Livros", "Casa", "Esporte"]
@@ -135,31 +147,13 @@ def main():
         raise ValueError(f"Linhas com customer_id invalidos: {invalid_customer_id_rows.to_dict()}")
 
     #############Valida formato da Data
-    order_date = pd.to_datetime(orders_df["order_date"], format="%Y-%m-%d", errors="coerce")
+    validate_date_format(orders_df, "order_date", "%Y-%m-%d", "Orders")
 
-    invalid_order_date_mask = order_date.isna()
-    invalid_date_rows = orders_df[invalid_order_date_mask]
-
-    if not invalid_date_rows.empty:
-        raise ValueError(f"Data do pedido invalida:{invalid_date_rows.to_dict(orient='records')}")
-
-    ######## valida valores zerado e nao numericos
-    order_quantity = pd.to_numeric(orders_df["quantity"], errors="coerce")
-
-    invalid_quantity_mask = order_quantity.isna() | (order_quantity <= 0)
-    invalid_quantity_rows = orders_df[invalid_quantity_mask]
-
-    if not invalid_quantity_rows.empty:
-        raise ValueError(f"existem ordens com quantidade de produto igual a 0 ou com valores nao numericos: {invalid_quantity_rows.to_dict(orient="records")}")
+    ######## valida valores zerado e nao numericos na coluna quantity do orders
+    validate_positive_integer(orders_df, "quantity", "Orders")
 
     ######## validacao de valor do produto eh maior que 0
-    order_unit_price = pd.to_numeric(orders_df["unit_price"], errors="coerce")
-
-    invalid_unit_price_mask = order_unit_price.isna() | (order_unit_price <= 0)
-    invalid_unit_price_rows = orders_df[invalid_unit_price_mask]
-
-    if not invalid_unit_price_rows.empty:
-        raise ValueError(f"Existem produtos com valores negativos ou iguais a 0: {invalid_unit_price_rows.to_string(index=False)}")
+    validate_positive_numeric(orders_df, "unit_price", "Orders")
 
     ######## Valida status
     order_status = ["completed", "cancelled", "refunded"]
