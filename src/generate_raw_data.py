@@ -20,14 +20,14 @@ cities = [
 
 customers = []
 
-for custumer_id in range(1, 101):
+for customer_id in range(1, 101):
     city, state = random.choice(cities)
     signup_date = date(2024, 1, 1) + timedelta(days=random.randint(0,600))
 
     customer = {
-        "custumer_id": custumer_id,
-        "name": f"Cliente {custumer_id}",
-        "email": f"cliente{custumer_id}@email.com",
+        "customer_id": customer_id,
+        "name": f"Cliente {customer_id}",
+        "email": f"cliente{customer_id}@email.com",
         "signup_date": signup_date.isoformat(),
         "city": city,
         "state": state,
@@ -65,7 +65,7 @@ while len(orders) < 1_000:
 
         order = {
             "order_id": order_id,
-            "customer_id": custumer["custumer_id"],
+            "customer_id": custumer["customer_id"],
             "product_id": product["product_id"],
             "order_date": order_date.isoformat(),
             "quantity": random.randint(1,5),
