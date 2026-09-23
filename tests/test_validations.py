@@ -3,6 +3,7 @@ import pytest
 
 from src.validate_raw_data import (
     validate_date_format,
+    validate_foreign_key,
     validate_no_nulls,
     validate_positive_integer,
     validate_positive_numeric,
@@ -83,3 +84,16 @@ def test_positive_integer_raises_error_when_quantity_is_decimal():
 
     with pytest.raises(ValueError, match="Existem valores não positivos, não inteiros ou inválidos na tabela"):
         validate_positive_integer(df, "quantity", "Orders")
+
+def test_foreign_keys_raises_error_when_product_does_not_exist():
+
+    orders_df = pd.DataFrame({
+        "product_id": [999]
+    })
+
+    products_df = pd.DataFrame({
+        "product_id":[1,2]
+    })
+
+    with pytest.raises(ValueError, match="foreignKeys"):
+        validate_foreign_key(orders_df, "product_id", products_df, "product_id", "Orders", "Product")

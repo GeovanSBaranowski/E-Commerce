@@ -64,6 +64,14 @@ def validate_positive_integer(df, column_name, table_name):
     if not invalid_integer_rows.empty:
         raise ValueError(f"Existem valores não positivos, não inteiros ou inválidos na tabela {table_name}, coluna {column_name}: {invalid_integer_rows.to_dict(orient="records")}")
 
+##########Valida as FKs
+def validate_foreign_key(df, column_name, reference_df, reference_column, table_name, reference_table_name):
+    invalid_fk_mask = ~df[column_name].isin(reference_df[reference_column])
+    invalid_fk_rows = df[invalid_fk_mask]
+
+    if not invalid_fk_rows.empty:
+        raise ValueError(f"As foreignKeys da tabela {table_name}, coluna {column_name} náo foram encontradas na tabela {reference_table_name}, coluna {reference_column}: {invalid_fk_rows.to_dict(orient="records")}")
+
 ###########main
 def main():
     
@@ -133,18 +141,10 @@ def main():
     validate_no_nulls(orders_df, "Orders")
 
     ###########Valida se o id do produto existe no csv dos products
-    invalid_product_id_mask = ~orders_df["product_id"].isin(products_df["product_id"])
-    invalid_product_id_rows = orders_df[invalid_product_id_mask]
-
-    if not invalid_product_id_rows.empty:
-        raise ValueError(f"Linhas com customer_id invalidos: {invalid_product_id_rows.to_dict()}")
+    validate_foreign_key(orders_df, "product_id", products_df, "product_id", "Orders", "Products")
 
     ###########Valida se o id do customer existe no csv dos customers
-    invalid_customer_id_mask = ~orders_df["customer_id"].isin(customers_df["customer_id"])
-    invalid_customer_id_rows = orders_df[invalid_customer_id_mask]
-
-    if not invalid_customer_id_rows.empty:
-        raise ValueError(f"Linhas com customer_id invalidos: {invalid_customer_id_rows.to_dict()}")
+    validate_foreign_key(orders_df, "customer_id", customers_df, "customer_id", "Orders", "Customer")
 
     #############Valida formato da Data
     validate_date_format(orders_df, "order_date", "%Y-%m-%d", "Orders")
