@@ -7,3 +7,4 @@ DataForge Local.session.sql
 .pytest_cache/
 __pycache__/
 .vscode/
+logs/
