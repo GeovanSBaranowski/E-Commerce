@@ -81,6 +81,7 @@ def main():
         run_sql_file("sql/01_create_tables.sql")
         run_command([sys.executable, "src/load_raw_data.py"])
         run_sql_file("sql/03_create_analytics_layer.sql")
+        run_command([sys.executable, "src/validate_loaded_data.py"])
 
     except subprocess.CalledProcessError:
         logger.exception("Pipeline falhou")
