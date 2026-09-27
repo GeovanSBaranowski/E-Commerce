@@ -32,3 +32,19 @@ GROUP BY
     p.product_id,
     p.product_name,
     p.category;
+
+CREATE OR REPLACE VIEW analytics.customer_sales AS
+SELECT 
+    c.customer_id,
+    c.name,
+    c.city,
+    COUNT(DISTINCT oi.order_id) AS total_orders,
+    COALESCE(SUM(oi.quantity * oi.unit_price), 0) AS revenue
+FROM customers AS c
+LEFT JOIN order_items AS oi
+    ON c.customer_id = oi.customer_id
+    AND oi.status = 'completed'
+GROUP BY
+    c.customer_id,
+    c.name,
+    c.city;

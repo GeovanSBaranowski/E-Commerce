@@ -8,3 +8,4 @@ DataForge Local.session.sql
 __pycache__/
 .vscode/
 logs/
+local_test.sql
