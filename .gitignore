@@ -9,3 +9,8 @@ __pycache__/
 .vscode/
 logs/
 local_test.sql
+
+# Estado local do Airflow
+airflow/.env
+airflow/config/
+airflow/logs/

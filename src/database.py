@@ -17,6 +17,7 @@ def get_engine():
     db_password = os.getenv("POSTGRES_PASSWORD")
     db_name = os.getenv("POSTGRES_DB")
     db_port = os.getenv("POSTGRES_PORT")
+    db_host = os.getenv("POSTGRES_HOST", "localhost")
     
     db_config = {
         "POSTGRES_USER": db_user,
@@ -34,7 +35,7 @@ def get_engine():
         drivername="postgresql+psycopg",
         username=db_user,
         password=db_password,
-        host="localhost",
+        host=db_host,
         port=int(db_port),
         database=db_name,
     )
