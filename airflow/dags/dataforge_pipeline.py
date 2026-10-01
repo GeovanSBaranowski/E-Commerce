@@ -20,10 +20,6 @@ with DAG(
     start_date=pendulum.datetime(2025,1,1, tz="America/Sao_Paulo"),
     schedule="0 6 * * *",
     catchup=False,
-    default_args={
-        "retries": 2,
-        "retry_delay": timedelta(minutes=1)
-    },
     tags=["dataforge", "ecommerce"]
 ) as dag:
     start_pipeline = EmptyOperator(
@@ -40,6 +36,14 @@ with DAG(
         bash_command="cd /opt/dataforge && python src/validate_raw_data.py"
     )
 
+    check_database = SQLExecuteQueryOperator(
+        task_id="check_database",
+        conn_id="dataforge_postgres",
+        sql="SELECT 1",
+        retries=5,
+        retry_delay=timedelta(minutes=1)
+    )
+
     load_raw_data = BashOperator(
         task_id="load_raw_data",
         bash_command="cd /opt/dataforge && python src/load_raw_data.py",
@@ -47,6 +51,9 @@ with DAG(
             "POSTGRES_HOST":"host.docker.internal",
         },
         append_env=True,
+        retries=2,
+        retry_delay=timedelta(minutes=1),
+        retry_exponential_backoff=True,
     )
 
     validate_loaded_data = BashOperator(
@@ -62,10 +69,13 @@ with DAG(
         task_id="create_analytics_layer",
         conn_id="dataforge_postgres",
         sql=ANALYTICS_SQL,
+        retries=2,
+        retry_delay=timedelta(minutes=1),
+        retry_exponential_backoff=True,
     )
 
     end_pipeline = EmptyOperator(
         task_id="end_pipeline",
     )
 
-    start_pipeline >> generate_raw_data >> validate_raw_data >> load_raw_data >> validate_loaded_data >> create_analytics_layer >> end_pipeline
+    start_pipeline >> generate_raw_data >> validate_raw_data >> check_database >> load_raw_data >> validate_loaded_data >> create_analytics_layer >> end_pipeline
