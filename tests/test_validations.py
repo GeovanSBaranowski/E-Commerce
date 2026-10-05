@@ -5,6 +5,7 @@ from src.validate_raw_data import (
     validate_date_format,
     validate_foreign_key,
     validate_no_nulls,
+    validate_orders,
     validate_positive_integer,
     validate_positive_numeric,
     validate_required_columns,
@@ -97,3 +98,36 @@ def test_foreign_keys_raises_error_when_product_does_not_exist():
 
     with pytest.raises(ValueError, match="foreignKeys"):
         validate_foreign_key(orders_df, "product_id", products_df, "product_id", "Orders", "Product")
+
+def test_orders_reject_duplicate_item_in_same_order():
+    orders_df = pd.DataFrame({
+        "order_id": [500, 500],
+        "item_number": [1, 1],
+        "customer_id": [1, 1],
+        "product_id": [1, 2],
+        "order_date": ["2026-10-01", "2026-10-01"],
+        "quantity": [1, 2],
+        "unit_price": [10.0, 20.0],
+        "status": ["completed", "completed"],
+    })
+    customers_df = pd.DataFrame({"customer_id": [1]})
+    products_df = pd.DataFrame({"product_id": [1, 2]})
+
+    with pytest.raises(ValueError, match="Itens duplicados no mesmo pedido"):
+        validate_orders(orders_df, customers_df, products_df)
+
+def test_orders_accept_different_items_in_same_order():
+    orders_df = pd.DataFrame({
+        "order_id": [500, 500],
+        "item_number": [1, 2],
+        "customer_id": [1, 1],
+        "product_id": [1, 2],
+        "order_date": ["2026-10-01", "2026-10-01"],
+        "quantity": [1, 2],
+        "unit_price": [10.0, 20.0],
+        "status": ["completed", "completed"],
+    })
+    customers_df = pd.DataFrame({"customer_id": [1]})
+    products_df = pd.DataFrame({"product_id": [1, 2]})
+
+    validate_orders(orders_df, customers_df, products_df)

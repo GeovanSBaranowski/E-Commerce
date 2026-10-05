@@ -26,16 +26,6 @@ with DAG(
         task_id="start_pipeline",
     )
 
-    generate_raw_data = BashOperator(
-        task_id="generate_raw_data",
-        bash_command="cd /opt/dataforge && python src/generate_raw_data.py"
-    )
-
-    validate_raw_data = BashOperator(
-        task_id="validate_raw_data",
-        bash_command="cd /opt/dataforge && python src/validate_raw_data.py"
-    )
-
     check_database = SQLExecuteQueryOperator(
         task_id="check_database",
         conn_id="dataforge_postgres",
@@ -44,25 +34,13 @@ with DAG(
         retry_delay=timedelta(minutes=1)
     )
 
-    load_raw_data = BashOperator(
-        task_id="load_raw_data",
-        bash_command="cd /opt/dataforge && python src/load_raw_data.py",
-        env={
-            "POSTGRES_HOST":"host.docker.internal",
-        },
+    process_incoming_batches = BashOperator(
+        task_id="process_incoming_batches",
+        bash_command="cd /opt/dataforge && python src/run_incremental_pipeline.py",
+        env={"POSTGRES_HOST": "host.docker.internal"},
         append_env=True,
         retries=2,
-        retry_delay=timedelta(minutes=1),
-        retry_exponential_backoff=True,
-    )
-
-    validate_loaded_data = BashOperator(
-        task_id="validate_loaded_data",
-        bash_command="cd /opt/dataforge && python src/validate_loaded_data.py",
-        env={
-            "POSTGRES_HOST": "host.docker.internal",
-        },
-        append_env=True,
+        retry_delay=timedelta(minutes=1)
     )
 
     create_analytics_layer = SQLExecuteQueryOperator(
@@ -78,4 +56,4 @@ with DAG(
         task_id="end_pipeline",
     )
 
-    start_pipeline >> generate_raw_data >> validate_raw_data >> check_database >> load_raw_data >> validate_loaded_data >> create_analytics_layer >> end_pipeline
+    start_pipeline >> check_database >> process_incoming_batches >> create_analytics_layer >> end_pipeline

@@ -72,6 +72,61 @@ def validate_foreign_key(df, column_name, reference_df, reference_column, table_
     if not invalid_fk_rows.empty:
         raise ValueError(f"As foreignKeys da tabela {table_name}, coluna {column_name} náo foram encontradas na tabela {reference_table_name}, coluna {reference_column}: {invalid_fk_rows.to_dict(orient="records")}")
 
+###########valida tudo a respeito de orders
+def validate_orders(orders_df, customers_df, products_df):
+        ############# Orders
+
+    ############# valida colunas do csv
+    orders_expected_columns = ["order_id","item_number","customer_id","product_id","order_date","quantity","unit_price","status"]
+
+    validate_required_columns(orders_df, orders_expected_columns, "Orders")
+
+    ############valida valores nulos nas colunas
+    validate_no_nulls(orders_df, "Orders")
+
+    ###########Valida se o id do produto existe no csv dos products
+    validate_foreign_key(orders_df, "product_id", products_df, "product_id", "Orders", "Products")
+
+    ###########Valida se o id do customer existe no csv dos customers
+    validate_foreign_key(orders_df, "customer_id", customers_df, "customer_id", "Orders", "Customer")
+
+    #############Valida formato da Data
+    validate_date_format(orders_df, "order_date", "%Y-%m-%d", "Orders")
+
+    ######## valida valores zerado e nao numericos na coluna quantity do orders
+    validate_positive_integer(orders_df, "quantity", "Orders")
+
+    ######## valida valores zerado e nao numericos na coluna item_number do orders
+    validate_positive_integer(orders_df, "item_number", "Orders")
+
+    ######## validacao de valor do produto eh maior que 0
+    validate_positive_numeric(orders_df, "unit_price", "Orders")
+
+    ######## Valida duplicados
+    duplicate_item_rows = orders_df[
+        orders_df.duplicated(
+            subset=["order_id", "item_number"],
+            keep=False,
+        )
+    ]
+
+    if not duplicate_item_rows.empty:
+        raise ValueError(
+            f"Itens duplicados no mesmo pedido: "
+            f"{duplicate_item_rows.to_dict(orient='records')}"
+        )
+
+    ######## Valida status
+    order_status = ["completed", "cancelled", "refunded"]
+
+    order_invalid_status = orders_df[~orders_df["status"].isin(order_status)]
+
+    if not order_invalid_status.empty:
+        invalid_status = order_invalid_status["status"].unique().tolist()
+        raise ValueError(f"Status invalido: {invalid_status}")
+
+    print("A validacao dos pedidos ocorreu com sucesso!")
+
 ###########main
 def main():
     
@@ -130,41 +185,7 @@ def main():
 
     print("A validacao dos produtos ocorreu com sucesso!")
 
-    ############# Orders
-
-    ############# valida colunas do csv
-    orders_expected_columns = ["order_id","customer_id","product_id","order_date","quantity","unit_price","status"]
-
-    validate_required_columns(orders_df, orders_expected_columns, "Orders")
-
-    ############valida valores nulos nas colunas
-    validate_no_nulls(orders_df, "Orders")
-
-    ###########Valida se o id do produto existe no csv dos products
-    validate_foreign_key(orders_df, "product_id", products_df, "product_id", "Orders", "Products")
-
-    ###########Valida se o id do customer existe no csv dos customers
-    validate_foreign_key(orders_df, "customer_id", customers_df, "customer_id", "Orders", "Customer")
-
-    #############Valida formato da Data
-    validate_date_format(orders_df, "order_date", "%Y-%m-%d", "Orders")
-
-    ######## valida valores zerado e nao numericos na coluna quantity do orders
-    validate_positive_integer(orders_df, "quantity", "Orders")
-
-    ######## validacao de valor do produto eh maior que 0
-    validate_positive_numeric(orders_df, "unit_price", "Orders")
-
-    ######## Valida status
-    order_status = ["completed", "cancelled", "refunded"]
-
-    order_invalid_status = orders_df[~orders_df["status"].isin(order_status)]
-
-    if not order_invalid_status.empty:
-        invalid_status = order_invalid_status["status"].unique().tolist()
-        raise ValueError(f"Status invalido: {invalid_status}")
-
-    print("A validacao dos pedidos ocorreu com sucesso!")
+    validate_orders(orders_df, customers_df, products_df)
 
 if __name__ == "__main__":
     main()

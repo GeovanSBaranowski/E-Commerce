@@ -58,13 +58,14 @@ while len(orders) < 1_000:
     items_in_order = random.randint(1,4)
     items_remaining = 1_000 - len(orders)
 
-    for _ in range(min(items_in_order, items_remaining)):
+    for item_number in range(min(items_in_order, items_remaining)):
         custumer = random.choice(customers)
         product = random.choice(products)
         order_date = date(2025,1,1) + timedelta(days=random.randint(0,365))
 
         order = {
             "order_id": order_id,
+            "item_number": item_number + 1,
             "customer_id": custumer["customer_id"],
             "product_id": product["product_id"],
             "order_date": order_date.isoformat(),

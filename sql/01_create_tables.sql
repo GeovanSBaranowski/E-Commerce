@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE TABLE IF NOT EXISTS order_items (
     order_item_id BIGSERIAL PRIMARY KEY,
     order_id INTEGER NOT NULL,
+    item_number INTEGER NOT NULL CHECK(item_number > 0),
     customer_id INTEGER NOT NULL REFERENCES customers(customer_id),
     product_id INTEGER NOT NULL REFERENCES products(product_id),
     order_date DATE NOT NULL,
@@ -24,5 +25,6 @@ CREATE TABLE IF NOT EXISTS order_items (
     unit_price NUMERIC(10, 2) NOT NULL CHECK (unit_price > 0),
     status TEXT NOT NULL CHECK (
         status IN ('completed', 'cancelled', 'refunded')
-    )
+    ),
+    UNIQUE (order_id, item_number)
 );

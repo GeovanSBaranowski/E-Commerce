@@ -9,41 +9,23 @@ Construir uma pipeline reprodutível que transforma dados brutos de clientes, pr
 ## Fluxo de funcionamento
 
 ```text
-                         src/generate_raw_data.py
-                                     |
-                                     v
-                         data/raw/*.csv
-                                     |
-                                     v
-                       src/validate_raw_data.py
-                                     |
-                       dados brutos aprovados
-                                     |
-                                     v
-                   Docker Compose + PostgreSQL
-                                     |
-                                     v
-                     sql/01_create_tables.sql
-                                     |
-                                     v
-                       src/load_raw_data.py
-                                     |
-                                     v
-                    src/validate_loaded_data.py
-                    reconcilia CSVs e PostgreSQL
-                                     |
-                                     v
-               sql/03_create_analytics_layer.sql
-                                     |
-                                     v
-                         schema analytics
-          +------------------+-------------------+
-          |                  |                   |
-          v                  v                   v
-monthly_category_revenue  product_sales    customer_sales
+Inicialização ou reconstrução completa (manual)
+  gerar data/raw/*.csv
+    -> validar clientes, produtos e itens de pedidos
+    -> criar tabelas no PostgreSQL
+    -> TRUNCATE e recarregar as tabelas
+    -> conferir contagens com os CSVs
+    -> criar ou atualizar as views analytics
+
+Rotina incremental (Airflow, diária)
+  data/incoming/orders_*.csv
+    -> validar cada lote e suas referências
+    -> inserir itens ainda não existentes
+    -> conferir as chaves (order_id, item_number) carregadas
+    -> criar ou atualizar as views analytics
 ```
 
-Todas as etapas são orquestradas por `src/run_pipeline.py`. A execução é registrada no terminal e em `logs/pipeline.log`.
+`src/run_pipeline.py` executa a reconstrução completa e registra sua saída no terminal e em `logs/pipeline.log`. A DAG `dataforge_pipeline` agenda somente a rotina incremental.
 
 ## Tecnologias
 
@@ -52,6 +34,7 @@ Todas as etapas são orquestradas por `src/run_pipeline.py`. A execução é reg
 - SQLAlchemy e Psycopg
 - PostgreSQL 16
 - Docker e Docker Compose
+- Apache Airflow
 - Pytest
 - GitHub Actions
 
@@ -60,22 +43,32 @@ Todas as etapas são orquestradas por `src/run_pipeline.py`. A execução é reg
 ```text
 dataforge-commerce/
 ├── data/raw/                  # Arquivos CSV gerados
+├── data/incoming/             # Lotes incrementais de pedidos
+├── airflow/
+│   ├── dags/dataforge_pipeline.py
+│   └── docker-compose.yaml
 ├── logs/                      # Logs locais da pipeline, ignorados pelo Git
 ├── sql/
 │   ├── 01_create_tables.sql   # Estrutura das tabelas operacionais
 │   ├── 02_analytics_queries.sql
-│   └── 03_create_analytics_layer.sql
+│   ├── 03_create_analytics_layer.sql
+│   └── 04_add_item_number.sql # Migração de bancos criados antes da chave composta
 ├── src/
 │   ├── database.py            # Conexão reutilizável com PostgreSQL
 │   ├── generate_raw_data.py
 │   ├── validate_raw_data.py
 │   ├── load_raw_data.py
 │   ├── validate_loaded_data.py
-│   └── run_pipeline.py        # Orquestrador principal
+│   ├── run_pipeline.py        # Reconstrução completa, manual
+│   ├── validate_incoming_orders.py
+│   ├── load_incoming_orders.py
+│   ├── validate_incoming_loaded.py
+│   └── run_incremental_pipeline.py
 ├── tests/
 │   └── test_validations.py
 ├── .github/workflows/tests.yaml
 ├── docker-compose.yml
+├── Dockerfile                 # Imagem local usada pelo Airflow
 ├── requirements.txt
 └── README.md
 ```
@@ -107,23 +100,46 @@ POSTGRES_DB=
 POSTGRES_PORT=
 ```
 
-## Executando a pipeline
+## Inicialização ou reconstrução completa
 
-Com a venv ativa e o Docker Desktop aberto, execute:
+Com a venv ativa e o Docker Desktop aberto, execute na raiz do projeto:
 
 ```bash
 python src/run_pipeline.py
 ```
 
-A pipeline executa, nesta ordem:
+Este comando executa, nesta ordem:
 
 1. Gera os CSVs sintéticos em `data/raw/`.
 2. Valida estrutura, valores nulos, duplicidades, datas, valores numéricos e chaves estrangeiras.
 3. Inicia o PostgreSQL com Docker Compose.
 4. Cria as tabelas necessárias, caso ainda não existam.
-5. Limpa e recarrega os dados no banco.
+5. Executa `TRUNCATE` e recarrega os dados no banco.
 6. Reconcilia a quantidade de linhas dos CSVs com as tabelas do PostgreSQL.
 7. Cria ou atualiza as views do schema `analytics`.
+
+**Atenção:** essa é uma reconstrução completa. Executá-la depois de uma carga incremental remove os itens recebidos em `data/incoming/` que não estejam também em `data/raw/orders.csv`. Use-a apenas quando quiser reinicializar o banco deliberadamente.
+
+## Carga incremental de pedidos
+
+Coloque novos lotes em `data/incoming/` com nomes no padrão `orders_*.csv`. Cada linha representa um item de pedido, identificado pelo par `(order_id, item_number)`. Os clientes e produtos referenciados precisam existir nos CSVs de `data/raw/` e nas tabelas do banco.
+
+Para processar manualmente todos os lotes encontrados, execute na raiz do projeto, com a venv ativa e o PostgreSQL em execução:
+
+```bash
+python src/run_incremental_pipeline.py
+```
+
+O script processa os arquivos em ordem de nome: valida o lote, insere os itens e confere se suas chaves foram encontradas no banco. A restrição única `(order_id, item_number)` e `ON CONFLICT DO NOTHING` permitem repetir a carga sem duplicar itens. Essa política **não atualiza** um item já existente caso o conteúdo do CSV mude.
+
+Também é possível processar e verificar um arquivo específico:
+
+```bash
+python src/load_incoming_orders.py data/incoming/orders_2026-10-01.csv
+python src/validate_incoming_loaded.py data/incoming/orders_2026-10-01.csv
+```
+
+A DAG `dataforge_pipeline` executa diariamente a rotina incremental: verifica a conexão com o PostgreSQL, processa os arquivos de `data/incoming/` e atualiza as views. O agendamento depende de o computador, o Docker Desktop e os serviços do Airflow estarem em execução. A DAG não gera os CSVs brutos nem executa `TRUNCATE`.
 
 ## Validações de dados
 
@@ -137,7 +153,11 @@ As regras incluem:
 - quantidades positivas e inteiras;
 - categorias e status permitidos;
 - integridade referencial entre pedidos, clientes e produtos;
-- reconciliação de contagens após a carga.
+- unicidade do par `(order_id, item_number)` dentro de cada lote;
+- reconciliação de contagens após a reconstrução completa;
+- verificação das chaves de cada lote após a carga incremental.
+
+A verificação incremental confirma a presença das chaves no banco; ela ainda não compara todos os campos do item com o CSV.
 
 ## Camada analítica
 
@@ -164,7 +184,7 @@ Execute os testes unitários com a venv ativa:
 python -m pytest -v
 ```
 
-Os testes cobrem as funções de validação de colunas, nulos, duplicidades, datas, números positivos, inteiros e chaves estrangeiras.
+Os testes cobrem as funções de validação de colunas, nulos, duplicidades, datas, números positivos, inteiros, chaves estrangeiras e a chave composta dos itens de pedido.
 
 ## Integração contínua
 

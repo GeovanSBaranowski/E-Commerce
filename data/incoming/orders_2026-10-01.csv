@@ -1,0 +1,3 @@
+order_id,item_number,customer_id,product_id,order_date,quantity,unit_price,status
+10386,1,1,1,2026-10-01,1,266.79,completed
+10386,2,1,2,2026-10-01,2,153.67,completed
